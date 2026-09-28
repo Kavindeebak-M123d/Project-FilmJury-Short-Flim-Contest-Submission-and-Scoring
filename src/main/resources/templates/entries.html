@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Film Entries')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-4">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show bg-dark border-success text-success mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show bg-dark border-danger text-danger mb-4" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-white mb-1"><i class="fa-solid fa-video text-warning me-2"></i>Contest Film Entries</h2>
+                <p class="text-secondary small mb-0">Browse submitted short films, assign judges, and review scores.</p>
+            </div>
+            <a th:href="@{/entries/new}" class="btn btn-gold"><i class="fa-solid fa-plus me-1"></i> Submit New Film</a>
+        </div>
+
+        <!-- Search, Filter & Sort Bar -->
+        <div class="cinema-card p-3 mb-4">
+            <form th:action="@{/entries}" method="get" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" name="search" class="form-control form-control-cinema" placeholder="Search by film title or team name..." th:value="${search}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="genre" class="form-select form-select-cinema" onchange="this.form.submit()">
+                        <option value="ALL" th:selected="${selectedGenre == 'ALL'}">All Genres</option>
+                        <option value="Drama" th:selected="${selectedGenre == 'Drama'}">Drama</option>
+                        <option value="Comedy" th:selected="${selectedGenre == 'Comedy'}">Comedy</option>
+                        <option value="Thriller" th:selected="${selectedGenre == 'Thriller'}">Thriller</option>
+                        <option value="Action" th:selected="${selectedGenre == 'Action'}">Action</option>
+                        <option value="Documentary" th:selected="${selectedGenre == 'Documentary'}">Documentary</option>
+                        <option value="Animation" th:selected="${selectedGenre == 'Animation'}">Animation</option>
+                        <option value="Romance" th:selected="${selectedGenre == 'Romance'}">Romance</option>
+                        <option value="Experimental" th:selected="${selectedGenre == 'Experimental'}">Experimental</option>
+                        <option value="Other" th:selected="${selectedGenre == 'Other'}">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-select form-select-cinema" onchange="this.form.submit()">
+                        <option value="date" th:selected="${selectedSort == 'date'}">Sort by: Date (Newest)</option>
+                        <option value="score" th:selected="${selectedSort == 'score'}">Sort by: Highest Score</option>
+                        <option value="title" th:selected="${selectedSort == 'title'}">Sort by: Title (A-Z)</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-outline-gold w-100"><i class="fa-solid fa-filter"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Entries Grid -->
+        <div class="row g-4" th:if="${entries != null and !entries.empty}">
+            <div class="col-md-6 col-lg-4" th:each="film : ${entries}">
+                <div class="cinema-card h-100 d-flex flex-column">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <span class="badge badge-genre" th:text="${film.genre}">Genre</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge badge-score"><i class="fa-solid fa-star me-1"></i><span th:text="${film.averageScore}">0.0</span></span>
+                        </div>
+                    </div>
+                    <div class="cinema-card-body d-flex flex-column flex-grow-1">
+                        <h4 class="text-white mb-1" th:text="${film.title}">Film Title</h4>
+                        <div class="text-warning small fw-bold mb-2"><i class="fa-solid fa-users me-1"></i><span th:text="${film.teamName}">Team Name</span></div>
+                        
+                        <p class="text-secondary small mb-3 flex-grow-1" th:text="${#strings.abbreviate(film.description, 140)}">Film description...</p>
+                        
+                        <div class="mb-3 small">
+                            <div class="text-muted"><i class="fa-solid fa-link me-1"></i>Link: 
+                                <a th:href="${film.videoLink}" target="_blank" class="text-info text-decoration-none" th:text="${#strings.abbreviate(film.videoLink, 30)}">Video Link</a>
+                            </div>
+                            <div class="text-muted"><i class="fa-solid fa-calendar me-1"></i>Date: <span th:text="${film.submissionDate}">2026-09-28</span></div>
+                            <div class="text-muted"><i class="fa-solid fa-user-check me-1"></i>Judges Scored: <strong class="text-light" th:text="${film.judgesScoredCount}">0</strong></div>
+                        </div>
+
+                        <div class="d-flex gap-2 pt-2 border-top border-secondary border-opacity-25 mt-auto">
+                            <a th:href="@{/entries/{id}(id=${film.id})}" class="btn btn-cinema-action btn-sm flex-fill"><i class="fa-solid fa-eye me-1"></i> View</a>
+                            <a th:href="@{/entries/{id}/assign(id=${film.id})}" class="btn btn-outline-warning btn-sm flex-fill"><i class="fa-solid fa-user-plus me-1"></i> Assign</a>
+                            <a th:href="@{/entries/{id}/score(id=${film.id})}" class="btn btn-gold btn-sm flex-fill"><i class="fa-solid fa-pen-nib me-1"></i> Score</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-5 cinema-card" th:if="${entries == null or entries.empty}">
+            <i class="fa-solid fa-film text-muted display-1 mb-3"></i>
+            <h4 class="text-white">No films found</h4>
+            <p class="text-secondary">No submissions match your search or filter criteria.</p>
+            <a th:href="@{/entries/new}" class="btn btn-gold mt-2"><i class="fa-solid fa-plus me-1"></i> Submit First Film</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Submit Film')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cinema-card">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <h4 class="text-white mb-0">
+                            <i class="fa-solid fa-clapperboard text-warning me-2"></i>
+                            <span th:text="${isEdit != null and isEdit} ? 'Edit Film Submission' : 'Submit Your Short Film'">Submit Your Short Film</span>
+                        </h4>
+                        <a th:href="@{/entries}" class="btn btn-cinema-action btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Back to Entries</a>
+                    </div>
+                    <div class="cinema-card-body">
+                        <form th:action="${isEdit != null and isEdit} ? @{/entries/{id}/edit(id=${entry.id})} : @{/entries}" 
+                              th:object="${entry}" method="post">
+                            
+                            <div class="row g-3">
+                                <!-- Film Title -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-light">Film Title <span class="text-danger">*</span></label>
+                                    <input type="text" th:field="*{title}" class="form-control form-control-cinema" 
+                                           placeholder="Enter film title" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                </div>
+
+                                <!-- Team Name -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-light">Team Name <span class="text-danger">*</span></label>
+                                    <input type="text" th:field="*{teamName}" class="form-control form-control-cinema" 
+                                           placeholder="Enter team name" th:classappend="${#fields.hasErrors('teamName')} ? 'is-invalid' : ''">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('teamName')}" th:errors="*{teamName}"></div>
+                                </div>
+
+                                <!-- Genre Dropdown -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-light">Genre <span class="text-danger">*</span></label>
+                                    <select th:field="*{genre}" class="form-select form-select-cinema" th:classappend="${#fields.hasErrors('genre')} ? 'is-invalid' : ''">
+                                        <option value="" disabled selected>-- Select Genre --</option>
+                                        <option value="Drama">Drama</option>
+                                        <option value="Comedy">Comedy</option>
+                                        <option value="Thriller">Thriller</option>
+                                        <option value="Action">Action</option>
+                                        <option value="Documentary">Documentary</option>
+                                        <option value="Animation">Animation</option>
+                                        <option value="Romance">Romance</option>
+                                        <option value="Experimental">Experimental</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('genre')}" th:errors="*{genre}"></div>
+                                </div>
+
+                                <!-- Video Link -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-light">Video Link (YouTube/Vimeo) <span class="text-danger">*</span></label>
+                                    <input type="url" th:field="*{videoLink}" class="form-control form-control-cinema" 
+                                           placeholder="https://youtube.com/watch?v=..." th:classappend="${#fields.hasErrors('videoLink')} ? 'is-invalid' : ''">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('videoLink')}" th:errors="*{videoLink}"></div>
+                                </div>
+
+                                <!-- Team Members -->
+                                <div class="col-12">
+                                    <label class="form-label text-light">Team Members</label>
+                                    <input type="text" th:field="*{teamMembers}" class="form-control form-control-cinema" 
+                                           placeholder="Director, Cinematographer, Lead Actor (comma-separated)...">
+                                    <div class="form-text text-muted">Include key cast and crew names.</div>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-12">
+                                    <label class="form-label text-light">Film Synopsis / Description</label>
+                                    <textarea th:field="*{description}" rows="4" class="form-control form-control-cinema" 
+                                              placeholder="Provide a synopsis or background of your short film..."></textarea>
+                                </div>
+
+                                <div class="col-12 pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2">
+                                    <a th:href="@{/entries}" class="btn btn-cinema-action">Cancel</a>
+                                    <button type="submit" class="btn btn-gold px-4">
+                                        <i class="fa-solid fa-paper-plane me-1"></i>
+                                        <span th:text="${isEdit != null and isEdit} ? 'Update Film' : 'Submit Film'">Submit Film</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

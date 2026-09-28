@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Dashboard')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-white mb-1"><i class="fa-solid fa-chart-line text-warning me-2"></i>Admin Dashboard</h2>
+                <p class="text-secondary small mb-0">Overview of contest entries, jury assignments, criteria, and scoring metrics.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/entries/new}" class="btn btn-gold btn-sm"><i class="fa-solid fa-plus me-1"></i> Submit Film</a>
+                <a th:href="@{/judges}" class="btn btn-outline-gold btn-sm"><i class="fa-solid fa-user-plus me-1"></i> Add Judge</a>
+            </div>
+        </div>
+
+        <!-- 4 Stat Widgets -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-film"></i></div>
+                    <div>
+                        <div class="stat-value text-white" th:text="${totalFilms}">0</div>
+                        <div class="stat-label">Total Films</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div>
+                        <div class="stat-value text-white" th:text="${totalJudges}">0</div>
+                        <div class="stat-label">Total Judges</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+                    <div>
+                        <div class="stat-value text-white" th:text="${totalCriteria}">0</div>
+                        <div class="stat-label">Total Criteria</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div>
+                        <div class="stat-value text-white" th:text="${totalScorecards}">0</div>
+                        <div class="stat-label">Total Scorecards</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Banner -->
+        <div class="cinema-card mb-4 p-3 bg-dark">
+            <h6 class="text-uppercase text-muted fw-bold mb-3 small"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Actions</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/entries/new}" class="btn btn-cinema-action"><i class="fa-solid fa-plus text-success me-1"></i> Submit Film</a>
+                <a th:href="@{/judges}" class="btn btn-cinema-action"><i class="fa-solid fa-user-plus text-primary me-1"></i> Add Judge</a>
+                <a th:href="@{/criteria}" class="btn btn-cinema-action"><i class="fa-solid fa-sliders text-info me-1"></i> Add Criterion</a>
+                <a th:href="@{/entries}" class="btn btn-cinema-action"><i class="fa-solid fa-user-check text-warning me-1"></i> Assign Judges</a>
+                <a th:href="@{/leaderboard}" class="btn btn-cinema-action"><i class="fa-solid fa-trophy text-gold me-1"></i> View Leaderboard</a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Top Films & Recent Submissions -->
+            <div class="col-lg-7">
+                <!-- Top Ranked Films -->
+                <div class="cinema-card mb-4">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-trophy text-warning me-2"></i>Top Ranked Films</h5>
+                        <a th:href="@{/leaderboard}" class="text-warning small text-decoration-none">Full Leaderboard &rarr;</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-cinema align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Film</th>
+                                    <th>Genre</th>
+                                    <th>Avg Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${topFilms}">
+                                    <td>
+                                        <span th:class="'rank-badge ' + (${item.rank == 1} ? 'rank-1' : (${item.rank == 2} ? 'rank-2' : (${item.rank == 3} ? 'rank-3' : 'rank-other')))"
+                                              th:text="${item.rank == 1 ? '🥇' : (item.rank == 2 ? '🥈' : (item.rank == 3 ? '🥉' : item.rank))}">1</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-white" th:text="${item.title}">Film Title</div>
+                                        <div class="text-muted small" th:text="${item.teamName}">Team Name</div>
+                                    </td>
+                                    <td><span class="badge badge-genre" th:text="${item.genre}">Genre</span></td>
+                                    <td><span class="badge badge-score" th:text="${item.averageScore}">9.5</span></td>
+                                </tr>
+                                <tr th:if="${topFilms == null or topFilms.empty}">
+                                    <td colspan="4" class="text-center text-muted py-3">No scored films available yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Submissions -->
+                <div class="cinema-card">
+                    <div class="cinema-card-header">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Recent Submissions</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-cinema align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Film Title</th>
+                                    <th>Team</th>
+                                    <th>Genre</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="film : ${recentSubmissions}">
+                                    <td class="fw-bold text-white" th:text="${film.title}">Film Title</td>
+                                    <td class="text-secondary" th:text="${film.teamName}">Team</td>
+                                    <td><span class="badge badge-genre" th:text="${film.genre}">Genre</span></td>
+                                    <td class="text-muted small" th:text="${film.submissionDate}">Date</td>
+                                    <td>
+                                        <a th:href="@{/entries/{id}(id=${film.id})}" class="btn btn-cinema-action btn-sm">View</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Recent Scoring Activity -->
+            <div class="col-lg-5">
+                <div class="cinema-card h-100">
+                    <div class="cinema-card-header">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-clipboard-list text-success me-2"></i>Recent Scoring Activity</h5>
+                    </div>
+                    <div class="cinema-card-body">
+                        <div class="list-group list-group-flush bg-transparent" th:if="${recentScores != null and !recentScores.empty}">
+                            <div th:each="sc : ${recentScores}" class="list-group-item bg-transparent text-white border-secondary border-opacity-25 px-0 py-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-bold text-warning" th:text="${sc.judge.name}">Judge Name</span>
+                                    <span class="badge bg-secondary text-light" th:text="${sc.criterion.name + ': ' + sc.score + '/' + sc.criterion.maxScore}">Story: 9.0</span>
+                                </div>
+                                <div class="small text-light mb-1">
+                                    Scored <strong th:text="${sc.entry.title}">Film Title</strong>
+                                </div>
+                                <div class="small text-muted italic" th:if="${sc.comments != null and !sc.comments.empty}" th:text="'&quot;' + ${sc.comments} + '&quot;'">Comments</div>
+                                <div class="small text-muted mt-1" th:text="${#temporals.format(sc.submittedAt, 'yyyy-MM-dd HH:mm')}">Time</div>
+                            </div>
+                        </div>
+                        <div class="text-center text-muted py-4" th:if="${recentScores == null or recentScores.empty}">
+                            No scorecards submitted yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

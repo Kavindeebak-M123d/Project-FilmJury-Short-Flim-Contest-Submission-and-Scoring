@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Criteria Management')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-4">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show bg-dark border-success text-success mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show bg-dark border-danger text-danger mb-4" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-4">
+            <!-- Add / Edit Form Column -->
+            <div class="col-lg-4">
+                <div class="cinema-card">
+                    <div class="cinema-card-header">
+                        <h5 class="text-white mb-0">
+                            <i class="fa-solid fa-sliders text-warning me-2"></i>
+                            <span th:text="${isEdit != null and isEdit} ? 'Edit Criterion' : 'Add New Criterion'">Add New Criterion</span>
+                        </h5>
+                    </div>
+                    <div class="cinema-card-body">
+                        <form th:action="${isEdit != null and isEdit} ? @{/criteria/edit/{id}(id=${criterion.id})} : @{/criteria}" 
+                              th:object="${criterion}" method="post">
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-light">Criterion Name <span class="text-danger">*</span></label>
+                                <input type="text" th:field="*{name}" class="form-control form-control-cinema" 
+                                       placeholder="e.g. Story, Cinematography" th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-light">Maximum Score <span class="text-danger">*</span></label>
+                                <input type="number" th:field="*{maxScore}" min="1" max="100" class="form-control form-control-cinema" 
+                                       placeholder="10" th:classappend="${#fields.hasErrors('maxScore')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('maxScore')}" th:errors="*{maxScore}"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-light">Description</label>
+                                <textarea th:field="*{description}" rows="3" class="form-control form-control-cinema" 
+                                          placeholder="Brief description of evaluation standards..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:if="${isEdit != null and isEdit}" th:href="@{/criteria}" class="btn btn-cinema-action btn-sm">Cancel</a>
+                                <button type="submit" class="btn btn-gold w-100">
+                                    <i class="fa-solid fa-check me-1"></i>
+                                    <span th:text="${isEdit != null and isEdit} ? 'Update Criterion' : 'Save Criterion'">Save Criterion</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Criteria Table Column -->
+            <div class="col-lg-8">
+                <div class="cinema-card">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-list-check text-warning me-2"></i>Scoring Criteria</h5>
+                        <span class="badge bg-secondary" th:text="${criteria.size()} + ' Criteria'">0 Criteria</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-cinema align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Criterion Name</th>
+                                    <th>Description</th>
+                                    <th>Max Score</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c, stat : ${criteria}">
+                                    <td class="text-muted fw-bold" th:text="${stat.count}">1</td>
+                                    <td class="fw-bold text-white" th:text="${c.name}">Story</td>
+                                    <td class="text-secondary small" th:text="${c.description != null and !c.description.empty ? c.description : 'No description'}">Narrative quality</td>
+                                    <td><span class="badge bg-dark border border-warning text-warning fs-6" th:text="${c.maxScore}">10</span></td>
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm">
+                                            <a th:href="@{/criteria/edit/{id}(id=${c.id})}" class="btn btn-cinema-action"><i class="fa-solid fa-pen"></i></a>
+                                            <a th:href="@{/criteria/delete/{id}(id=${c.id})}" onclick="return confirm('Are you sure you want to delete this criterion?');" class="btn btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${criteria == null or criteria.empty}">
+                                    <td colspan="5" class="text-center text-muted py-4">No scoring criteria defined.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

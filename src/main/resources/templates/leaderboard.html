@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Leaderboard')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-4">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show bg-dark border-success text-success mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="text-center my-4">
+            <h2 class="text-white display-5 font-weight-extrabold mb-2">
+                <i class="fa-solid fa-trophy text-warning me-2"></i>Contest Leaderboard
+            </h2>
+            <p class="text-secondary">Official rankings based on independent jury evaluation and calculated average scores.</p>
+        </div>
+
+        <!-- Leaderboard Card -->
+        <div class="cinema-card mb-5">
+            <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                <h5 class="text-white mb-0"><i class="fa-solid fa-award text-warning me-2"></i>Live Standings</h5>
+                <span class="badge badge-genre" th:text="${leaderboard.size()} + ' Scored Films'">0 Scored Films</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-cinema align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Rank</th>
+                            <th>Film Title</th>
+                            <th>Team</th>
+                            <th>Genre</th>
+                            <th class="text-center">Judges Scored</th>
+                            <th class="text-end">Average Score</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${leaderboard}" th:classappend="${item.rank == 1} ? 'bg-warning bg-opacity-10' : ''">
+                            <td class="text-center">
+                                <span th:class="'rank-badge ' + (${item.rank == 1} ? 'rank-1' : (${item.rank == 2} ? 'rank-2' : (${item.rank == 3} ? 'rank-3' : 'rank-other')))"
+                                      th:text="${item.rank == 1 ? '🥇 1' : (item.rank == 2 ? '🥈 2' : (item.rank == 3 ? '🥉 3' : item.rank))}">1</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/entries/{id}(id=${item.entryId})}" class="fw-bold text-white text-decoration-none hover-gold fs-5" th:text="${item.title}">Film Title</a>
+                            </td>
+                            <td class="text-warning font-weight-bold" th:text="${item.teamName}">Team Name</td>
+                            <td><span class="badge badge-genre" th:text="${item.genre}">Genre</span></td>
+                            <td class="text-center">
+                                <span class="badge bg-dark border border-secondary text-secondary px-3 py-2" th:text="${item.judgesScored} + ' Judges'">2 Judges</span>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge badge-score fs-5" th:text="${item.averageScore}">9.4</span>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/entries/{id}(id=${item.entryId})}" class="btn btn-cinema-action btn-sm">View Details</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${leaderboard == null or leaderboard.empty}">
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fa-solid fa-trophy text-muted display-4 mb-3 d-block"></i>
+                                <h5>No films on the leaderboard yet.</h5>
+                                <p class="small text-secondary mb-3">Films will automatically appear here once jury members submit scorecards.</p>
+                                <a th:href="@{/entries}" class="btn btn-gold btn-sm"><i class="fa-solid fa-video me-1"></i> Go to Entries</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

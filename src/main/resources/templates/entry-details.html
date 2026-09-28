@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head(${entry.title})}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-4">
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show bg-dark border-success text-success mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Header Bar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a th:href="@{/entries}" class="text-warning small text-decoration-none mb-2 d-inline-block"><i class="fa-solid fa-arrow-left me-1"></i> Back to Entries</a>
+                <h2 class="text-white mb-0" th:text="${entry.title}">Film Title</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/entries/{id}/assign(id=${entry.id})}" class="btn btn-outline-warning"><i class="fa-solid fa-user-plus me-1"></i> Assign Judges</a>
+                <a th:href="@{/entries/{id}/score(id=${entry.id})}" class="btn btn-gold"><i class="fa-solid fa-pen-nib me-1"></i> Score Film</a>
+                <a th:href="@{/entries/{id}/edit(id=${entry.id})}" class="btn btn-cinema-action"><i class="fa-solid fa-pen me-1"></i> Edit</a>
+                <a th:href="@{/entries/{id}/delete(id=${entry.id})}" onclick="return confirm('Are you sure you want to delete this film submission?');" class="btn btn-outline-danger"><i class="fa-solid fa-trash me-1"></i> Delete</a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Main Content: Details & Video -->
+            <div class="col-lg-8">
+                <div class="cinema-card mb-4">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <span class="badge badge-genre fs-6" th:text="${entry.genre}">Genre</span>
+                        <span class="text-muted small"><i class="fa-solid fa-calendar me-1"></i>Submitted: <span th:text="${entry.submissionDate}">2026-09-28</span></span>
+                    </div>
+                    <div class="cinema-card-body">
+                        <h4 class="text-white mb-2"><i class="fa-solid fa-users text-warning me-2"></i>Team: <span th:text="${entry.teamName}">Team Name</span></h4>
+                        <p class="text-muted small mb-4" th:if="${entry.teamMembers != null and !entry.teamMembers.empty}" th:text="'Key Members: ' + ${entry.teamMembers}">Cast & Crew</p>
+                        
+                        <h5 class="text-white mb-2">Synopsis</h5>
+                        <p class="text-secondary leading-relaxed mb-4" th:text="${entry.description != null and !entry.description.empty ? entry.description : 'No description provided.'}">Film Synopsis...</p>
+
+                        <h5 class="text-white mb-2"><i class="fa-solid fa-video text-danger me-2"></i>Video Link</h5>
+                        <div class="p-3 bg-dark border border-secondary border-opacity-25 rounded d-flex justify-content-between align-items-center">
+                            <span class="text-info text-break" th:text="${entry.videoLink}">https://youtube.com/watch?v=...</span>
+                            <a th:href="${entry.videoLink}" target="_blank" class="btn btn-cinema-action btn-sm ms-2 text-nowrap"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Watch Video</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Breakdowns -->
+                <div class="cinema-card">
+                    <div class="cinema-card-header">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-clipboard-check text-success me-2"></i>Submitted Scorecards (<span th:text="${entry.scoreCards.size()}">0</span>)</h5>
+                    </div>
+                    <div class="cinema-card-body">
+                        <div th:if="${entry.scoreCards != null and !entry.scoreCards.empty}" class="table-responsive">
+                            <table class="table table-cinema align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Judge</th>
+                                        <th>Criterion</th>
+                                        <th>Score</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="sc : ${entry.scoreCards}">
+                                        <td class="fw-bold text-warning" th:text="${sc.judge.name}">Judge Name</td>
+                                        <td class="text-light" th:text="${sc.criterion.name}">Criterion</td>
+                                        <td><span class="badge bg-dark border border-warning text-warning" th:text="${sc.score + ' / ' + sc.criterion.maxScore}">9/10</span></td>
+                                        <td class="text-muted small" th:text="${sc.comments != null and !sc.comments.empty ? sc.comments : '—'}">Comments</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center text-muted py-4" th:if="${entry.scoreCards == null or entry.scoreCards.empty}">
+                            No scorecards have been submitted for this film yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Score summary & assigned judges -->
+            <div class="col-lg-4">
+                <!-- Average Score Widget -->
+                <div class="cinema-card text-center p-4 mb-4">
+                    <h6 class="text-uppercase text-muted fw-bold mb-2">Calculated Average Score</h6>
+                    <div class="display-3 font-weight-extrabold text-warning mb-2" th:text="${entry.averageScore}">0.0</div>
+                    <p class="text-secondary small mb-0"><i class="fa-solid fa-user-check me-1"></i>Based on <strong class="text-white" th:text="${entry.judgesScoredCount}">0</strong> judges who scored.</p>
+                </div>
+
+                <!-- Assigned Judges Panel -->
+                <div class="cinema-card">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="text-white mb-0"><i class="fa-solid fa-user-ninja text-warning me-2"></i>Assigned Judges</h5>
+                        <a th:href="@{/entries/{id}/assign(id=${entry.id})}" class="btn btn-cinema-action btn-sm"><i class="fa-solid fa-user-gear me-1"></i> Manage</a>
+                    </div>
+                    <div class="cinema-card-body">
+                        <ul class="list-group list-group-flush bg-transparent" th:if="${entry.judges != null and !entry.judges.empty}">
+                            <li th:each="judge : ${entry.judges}" class="list-group-item bg-transparent text-white border-secondary border-opacity-25 px-0 py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold" th:text="${judge.name}">Judge Name</div>
+                                    <div class="text-muted small" th:text="${judge.email}">judge@email.com</div>
+                                </div>
+                                <span class="badge bg-dark border border-secondary text-secondary">Assigned</span>
+                            </li>
+                        </ul>
+                        <div class="text-center text-muted py-3" th:if="${entry.judges == null or entry.judges.empty}">
+                            No judges currently assigned to this entry.
+                            <div class="mt-2">
+                                <a th:href="@{/entries/{id}/assign(id=${entry.id})}" class="btn btn-outline-warning btn-sm">Assign Judges Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Assign Judges')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cinema-card">
+                    <div class="cinema-card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="text-white mb-0"><i class="fa-solid fa-user-gear text-warning me-2"></i>Assign Judges</h4>
+                            <p class="text-muted small mb-0">Film: <strong class="text-warning" th:text="${entry.title}">Film Title</strong></p>
+                        </div>
+                        <a th:href="@{/entries/{id}(id=${entry.id})}" class="btn btn-cinema-action btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Back to Film</a>
+                    </div>
+                    <div class="cinema-card-body">
+                        <form th:action="@{/entries/{id}/assign(id=${entry.id})}" method="post">
+                            <h6 class="text-white mb-3">Select Jury Members to Assign:</h6>
+
+                            <div class="list-group mb-4" th:if="${allJudges != null and !allJudges.empty}">
+                                <div th:each="judge : ${allJudges}" class="list-group-item bg-dark border-secondary border-opacity-50 text-white p-3">
+                                    <div class="form-check d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <input class="form-check-input me-3 fs-5" type="checkbox" name="judgeIds" 
+                                                   th:value="${judge.id}" 
+                                                   th:id="${'judge_' + judge.id}"
+                                                   th:checked="${entry.judges.contains(judge)}">
+                                            <label class="form-check-label fw-bold text-white fs-6" th:for="${'judge_' + judge.id}" th:text="${judge.name}">
+                                                Judge Name
+                                            </label>
+                                            <div class="text-muted small ms-4" th:text="${judge.email}">judge@email.com</div>
+                                        </div>
+                                        <span class="badge" th:classappend="${entry.judges.contains(judge)} ? 'bg-success' : 'bg-secondary'" 
+                                              th:text="${entry.judges.contains(judge)} ? 'Currently Assigned' : 'Not Assigned'">
+                                            Status
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center text-muted py-4" th:if="${allJudges == null or allJudges.empty}">
+                                No judges found in the system. <a th:href="@{/judges}" class="text-warning">Add a judge first.</a>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary border-opacity-25" th:if="${allJudges != null and !allJudges.empty}">
+                                <a th:href="@{/entries/{id}(id=${entry.id})}" class="btn btn-cinema-action">Cancel</a>
+                                <button type="submit" class="btn btn-gold px-4"><i class="fa-solid fa-user-check me-1"></i> Assign Judges</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
